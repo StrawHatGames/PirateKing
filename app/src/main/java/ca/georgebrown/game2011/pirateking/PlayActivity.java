@@ -2,21 +2,41 @@ package ca.georgebrown.game2011.pirateking;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.nfc.Tag;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
+/**
+*
+*                                                                                           PlayActivity.java
+*                                                                              Marco Giardina - Felix Pham - Boris Merlo
+*                                                                                 101025550   - 101035471  -  101081263
+*                                                                       03-11-18 - © 2018 Straw Hat Games.  All rights reserved.
+*
+*                                                                                 version 0.1 -> added reel functionality, images, and main game mechanics
+*                                                                                             -> added buttons to ensure game mechanics functionality (bets, spin, reset)
+*
+*                                                                                 version 0.5 -> added various checks to ensure a functional game loop
+*                                                                                             -> added an options menu, added UI elements, tested win conditions
+*
+*                                                                                 version 1.0 -> added background to main game window
+*                                                                                             -> added various UI elements to main game window
+*                                                                                             -> polished main game window UI elements, and tested win conditions, as well as jackpot
+*                                                                                             -> polished main menu, added text elements, and updated version number
+*
+*                                                          This script will allow the user to play through the main game.
+*                                                          The user will be able to choose how many credits to bet and receive visual feedback accordingly.
+*                                                          After this, the user may spin the reel and potentially earn credits.
+*                                                          Check are made to ensure that the user can only spin the reels if they have enough credits.
+*                                                          Once the user's credits are below a certain amount (5 credtis, being the minimum bet allowed), a reset button can be used to reset credits.
+*
+**/
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -330,7 +350,7 @@ public class PlayActivity extends AppCompatActivity
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
 
-    public void spinReel()
+    public void spinReel() // this method handles the reel spin and calculates the amount of credits the player will win
     {
         int randSpin = (int) Math.floor((Math.random() * 50) + 1);
         if (randSpin >= 1 && randSpin <= 15) {
@@ -400,7 +420,7 @@ public class PlayActivity extends AppCompatActivity
             playerCredits += (pBetCounter * 10);
             pAmountWon = pBetCounter * 10;
             showEarnings();
-            //TODO: add jackpot message
+            showJackpotMessage();
         }
         else if (meramera == 3)
         {
@@ -448,14 +468,15 @@ public class PlayActivity extends AppCompatActivity
         resetReel();
     }
 
-    public void setBetAmount(int betAmount)
+    public void setBetAmount(int betAmount) // takes care of setting the current bet
     {
         pBetCounter += betAmount;
         playerCredits -= betAmount;
+        winPreview();
         UpdateUI();
     }
 
-    public void UpdateUI()
+    public void UpdateUI() // this function will update the game's UI elements
     {
         TextView pBet = findViewById(R.id.pBetAmount);
         pBet.setText(pBetCounter+"");
@@ -463,7 +484,7 @@ public class PlayActivity extends AppCompatActivity
         pCredits.setText(playerCredits+"");
     }
 
-    public void resetCredits()
+    public void resetCredits() // this function resets the player's credits if less than 5
     {
         if(playerCredits <= 4)
         {
@@ -472,26 +493,39 @@ public class PlayActivity extends AppCompatActivity
         }
     }
 
-    public void showEarnings()
+    public void showJackpotMessage() // displays a special message for the jackpot
+    {
+        TextView pWinAmount = findViewById(R.id.winAmountText);
+        pWinAmount.setText("You won the Jackpot!");
+        pWinAmount.setVisibility(View.VISIBLE);
+    }
+
+    public void showEarnings() // displays a message with the amount the player won
     {
         TextView pWinAmount = findViewById(R.id.winAmountText);
         pWinAmount.setText("You won: "+pAmountWon+"!");
         pWinAmount.setVisibility(View.VISIBLE);
     }
 
-    public void backToMenu()
+    public void backToMenu() // button functionality to return to the main menu
     {
         Intent intent = new Intent(this, MainMenu.class);
         startActivity(intent);
     }
 
-   public void optionsMenu()
+   public void optionsMenu() // button functionality to return to the options menu
     {
         Intent intent = new Intent(this, OptionsActivity.class);
         startActivity(intent);
     }
 
-    public void resetReel()
+    public void winPreview() // displays the potential jackpot amount to be won
+    {
+        TextView pJackpot = findViewById(R.id.jackpotAmount);
+        pJackpot.setText(pBetCounter*10+"");
+    }
+
+    public void resetReel() // resets the item reel counter
     {
         bomb = 0;
         berries = 0;
